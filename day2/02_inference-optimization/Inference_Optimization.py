@@ -80,6 +80,7 @@ from basecamp_setup import connect
 
 claude = connect()
 client = claude.client
+# MODEL is ANTHROPIC_MODEL from .env (default claude-sonnet-5); FAST_MODEL and BIG_MODEL stay fixed.
 MODEL, FAST_MODEL, BIG_MODEL = claude.model, claude.fast_model, claude.big_model
 
 import anthropic

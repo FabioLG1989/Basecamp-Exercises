@@ -12,3 +12,14 @@ key.env
 uv.lock
 .vscode/
 .ipynb_checkpoints/
+
+# Qubika Agentic Framework clone (local only; its generated .claude/ and docs/llm-wiki/ are committed)
+qubika-agentic-framework/
+.claude/worktrees/
+.claude/settings.local.json
+
+.claude-temp/
+.codex-temp/
+.claude-backups/
+.codex-backups/
+.codex/config.toml

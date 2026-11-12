@@ -67,7 +67,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # The base model. It is plenty capable — every failure in this system is
 # structural, not a model-capability ceiling. Swapping in a bigger model costs
 # more and does NOT move RESOLVED. That's the whole point of the exercise.
-MODEL = _model("claude-sonnet-5")
+# Set it with ANTHROPIC_MODEL in .env (default claude-sonnet-5); --model overrides per run.
+MODEL = _model(_settings.default_model)
 
 # $ per 1M tokens (input, output). Used to price each run so the cost lever is visible.
 # Rates: platform.claude.com/docs/en/about-claude/pricing — add a line for any model not listed.

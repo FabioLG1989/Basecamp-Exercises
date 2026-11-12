@@ -38,6 +38,7 @@ ENV_EXAMPLE = ROOT / ".env.example"
 KERNEL_NAME = "basecamp-exercises"
 KERNEL_DISPLAY_NAME = "Anthropic Basecamp (.venv)"
 DEFAULT_MODEL_PREFIX = "bedrock.anthropic."  # what PwC's Bedrock gateway expects
+DEFAULT_MODEL = "claude-sonnet-5"  # the workhorse model when .env has no ANTHROPIC_MODEL
 ENV_KEYS = ("ANTHROPIC_API_KEY", "AWS_BEARER_TOKEN_BEDROCK", "AWS_REGION",
             "ANTHROPIC_BASE_URL", "ANTHROPIC_MODEL_PREFIX")
 TLS_MODES = ("default", "system+bundle", "system")  # values of BASECAMP_TLS; see check_tls()
@@ -75,6 +76,8 @@ class Settings:
         self.region = setting("AWS_REGION")
         self.base_url = setting("ANTHROPIC_BASE_URL")  # company gateway / proxy, if any
         self.model_prefix = setting("ANTHROPIC_MODEL_PREFIX")
+        # The workhorse model for every exercise (a bare ID, e.g. claude-sonnet-5).
+        self.default_model = setting("ANTHROPIC_MODEL") or DEFAULT_MODEL
         # If both credentials are set, the Anthropic-protocol key wins.
         self.provider = "anthropic" if self.api_key else "bedrock" if self.bedrock_token else None
         # Which certificates to trust: saved by the setup script after testing this machine.
@@ -169,11 +172,12 @@ class Unreachable(SystemExit):
     """connect() got no answer from the endpoint: a network problem, not a settings one."""
 
 
-def connect(model="claude-sonnet-5", fast_model="claude-haiku-4-5", big_model="claude-opus-4-8"):
+def connect(model=None, fast_model="claude-haiku-4-5", big_model="claude-opus-4-8"):
     """Build a Claude client from your settings and prove it works, or stop with a clear
     banner saying what to fix. Model names are bare IDs; they come back resolved for your route.
 
-        model       the workhorse for the exercise
+        model       the workhorse for the exercise: ANTHROPIC_MODEL from your shell or .env,
+                    else claude-sonnet-5
         fast_model  cheap + quick (connection check, judges)
         big_model   when you want to try a larger model
     """
@@ -199,7 +203,8 @@ def connect(model="claude-sonnet-5", fast_model="claude-haiku-4-5", big_model="c
         _stop(*issue)
 
     connection = Connection(settings, settings.make_client(timeout=900.0),
-                            settings.model(model), settings.model(fast_model),
+                            settings.model(model or settings.default_model),
+                            settings.model(fast_model),
                             settings.model(big_model))
     gateway = settings.base_url
     via = f" via {gateway}" if gateway else ""
